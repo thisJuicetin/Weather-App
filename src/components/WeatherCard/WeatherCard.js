@@ -9,6 +9,7 @@ import { Box } from "@material-ui/core";
 const useStyles = makeStyles({
   root: {
     margin: "16px",
+    backgroundColor: "#f8f8ff",
   },
   weatherIcon: {
     height: "100px",
@@ -27,7 +28,6 @@ export default function WeatherCard(props) {
         <Box
           component="div"
           display="flex"
-          backgroundColor="#f8f8ff"
           flexDirection="column"
           alignItems="center"
           textAlign="center"
