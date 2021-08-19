@@ -50,15 +50,19 @@ export default function WeatherCard(props) {
             className={classes.weatherIcon}
             component="img"
             alt="Weather Icon"
-            image="http://openweathermap.org/img/wn/10d@2x.png"
+            image={
+              "http://openweathermap.org/img/wn/" +
+              props.weatherIconCode +
+              "@2x.png"
+            }
             title="Contemplative Reptile"
           />
           <Typography variant="h5" component="h2">
-            Temperature
+            {props.temperature}
           </Typography>
 
           <Typography variant="h5" component="h2">
-            Description
+            {props.description}
           </Typography>
         </Box>
       </CardContent>

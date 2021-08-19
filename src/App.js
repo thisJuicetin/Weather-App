@@ -18,10 +18,22 @@ const useStyles = makeStyles({
 });
 
 const App = () => {
-  const [city, setCity] = useState("San Jose");
+  const [textField, setTextField] = useState("San Jose");
+  const [mainCity, setMainCity] = useState(textField);
+  const [weatherIconCode, setWeatherIconCode] = useState("10d");
+  const [temperature, setTemperature] = useState("Temperature");
+  const [description, setDescription] = useState("Description");
   const classes = useStyles();
 
-  // const getWeather = (e) => {};
+  const updateMainCard = async () => {
+    getDataByCity(textField.replace(" ", "+")).then((response) => {
+      console.log(response);
+      setMainCity(response.name);
+      setWeatherIconCode(response.weatherIconCode);
+      setTemperature(response.temperature);
+      setDescription(response.description);
+    });
+  };
 
   return (
     <Box className={classes.container}>
@@ -30,13 +42,13 @@ const App = () => {
         className={classes.textField}
         label="City Name"
         variant="outlined"
-        value={city}
-        onChange={(e) => setCity(e.target.value)}
+        value={textField}
+        onChange={(e) => setTextField(e.target.value)}
       />
       <Button
         variant="contained"
         color="primary"
-        onClick={() => getDataByCity(city)}
+        onClick={() => updateMainCard()}
       >
         Get Weather
       </Button>
@@ -47,7 +59,12 @@ const App = () => {
         justifyContent="center"
         alignItems="center"
       >
-        <WeatherCard cityName="San Jose" />
+        <WeatherCard
+          cityName={mainCity}
+          weatherIconCode={weatherIconCode}
+          temperature={temperature + "\u00B0F"}
+          description={description}
+        />
       </Box>
     </Box>
   );
