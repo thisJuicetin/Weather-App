@@ -1,7 +1,18 @@
 import { useState } from "react";
-import { Box, Button, makeStyles, TextField } from "@material-ui/core";
-import WeatherCard from "./components/WeatherCard/WeatherCard";
-import { getDataByCity } from "./api/OpenWeatherUtils";
+import {
+  Box,
+  Button,
+  IconButton,
+  makeStyles,
+  TextField,
+} from "@material-ui/core";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
+import WeatherCard from "./components/WeatherCard";
+import DeleteIcon from "@material-ui/icons/Delete";
+import { STATE_CODES } from "./StateCodes";
 
 const useStyles = makeStyles({
   container: {
@@ -14,43 +25,81 @@ const useStyles = makeStyles({
     minHeight: "100vh",
     backgroundColor: "aliceblue",
   },
-  textField: { backgroundColor: "#f8f8ff", paddingBottom: "16px" },
+  textField: { backgroundColor: "#f8f8ff", marginBottom: 16 },
+  addCityButton: { padding: "16px" },
+  formControl: {
+    width: 100,
+    backgroundColor: "#f8f8ff",
+    marginLeft: 16,
+    marginBottom: 16,
+  },
 });
 
 const App = () => {
-  const [textField, setTextField] = useState("San Jose");
-  const [mainCity, setMainCity] = useState(textField);
-  const [weatherIconCode, setWeatherIconCode] = useState("10d");
-  const [temperature, setTemperature] = useState("Temperature");
-  const [description, setDescription] = useState("Description");
   const classes = useStyles();
-
-  const updateMainCard = async () => {
-    getDataByCity(textField.replace(" ", "+")).then((response) => {
-      console.log(response);
-      setMainCity(response.name);
-      setWeatherIconCode(response.weatherIconCode);
-      setTemperature(response.temperature);
-      setDescription(response.description);
-    });
+  const [textField, setTextField] = useState("");
+  const [stateCode, setStateCode] = useState("");
+  const handleStateChange = (e) => {
+    setStateCode(e.target.value);
   };
 
+  const [weatherCards, setWeatherCards] = useState([
+    <WeatherCard city="Long Beach" key="Long Beach" />,
+    <WeatherCard city="Morgan Hill" key="Morgan Hill" />,
+    <WeatherCard city="Milpitas" key="Milpitas" />,
+    <WeatherCard city="San Jose" key="San Jose" />,
+  ]);
+  const handleAddCard = () => {
+    setWeatherCards([...weatherCards, <WeatherCard city={textField} />]);
+    setTextField("");
+  };
+  const deleteCard = (index) => {
+    weatherCards.splice(index, 1);
+    setWeatherCards([...weatherCards]);
+  };
   return (
     <Box className={classes.container}>
-      <TextField
-        id="outlined-basic"
-        className={classes.textField}
-        label="City Name"
-        variant="outlined"
-        value={textField}
-        onChange={(e) => setTextField(e.target.value)}
-      />
+      <Box display="flex" alignItems="center">
+        <TextField
+          id="outlined-basic"
+          className={classes.textField}
+          label="City Name"
+          variant="outlined"
+          value={textField}
+          onChange={(e) => setTextField(e.target.value)}
+        />
+        <FormControl variant="outlined" className={classes.formControl}>
+          <InputLabel
+            id="demo-simple-select-label"
+            className={classes.textField}
+          >
+            State
+          </InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={stateCode}
+            onChange={handleStateChange}
+          >
+            {STATE_CODES.map((state, index) => {
+              return (
+                <MenuItem value={state} key={state}>
+                  {state}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      </Box>
       <Button
         variant="contained"
         color="primary"
-        onClick={() => updateMainCard()}
+        onClick={() => {
+          handleAddCard();
+          console.log(stateCode);
+        }}
       >
-        Get Weather
+        Add City
       </Button>
       <Box
         component="div"
@@ -59,12 +108,21 @@ const App = () => {
         justifyContent="center"
         alignItems="center"
       >
-        <WeatherCard
-          cityName={mainCity}
-          weatherIconCode={weatherIconCode}
-          temperature={temperature + "\u00B0F"}
-          description={description}
-        />
+        {weatherCards.map((card, index) => {
+          return (
+            <Box key={index}>
+              <Box display="flex" flexDirection="column" alignItems="center">
+                <IconButton
+                  aria-label="delete"
+                  onClick={() => deleteCard(index)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+              <WeatherCard city={card.props.city} key={card.props.city} />
+            </Box>
+          );
+        })}
       </Box>
     </Box>
   );

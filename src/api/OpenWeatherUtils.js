@@ -11,7 +11,6 @@ export const getDataByCity = async (city) => {
         API_KEY
     )
     .then((response) => {
-      console.log(response);
       return {
         name: response.data.name,
         temperature: response.data.main.temp,
@@ -22,19 +21,18 @@ export const getDataByCity = async (city) => {
     .catch((error) => console.log(error));
   return response;
 };
-export const getNeighboringCities = async (lat, lon) => {
+export const getDataByCityAndState = async (city, state) => {
   const response = axios
     .get(
       BASE_URL +
-        "/data/2.5/find?lat=" +
-        lat +
-        "&lon=" +
-        lon +
+        "/data/2.5/weather?q=" +
+        city +
+        "," +
+        state +
         "&units=imperial&appid=" +
         API_KEY
     )
     .then((response) => {
-      console.log(response);
       return {
         name: response.data.name,
         temperature: response.data.main.temp,
@@ -45,3 +43,38 @@ export const getNeighboringCities = async (lat, lon) => {
     .catch((error) => console.log(error));
   return response;
 };
+// export const getDataByCity2 = async (city) => {
+//   const response = axios
+//     .get(
+//       BASE_URL +
+//         "/data/2.5/weather?q=" +
+//         city +
+//         "&units=imperial&appid=" +
+//         API_KEY
+//     )
+//     .then((response) => {
+//       console.log(response);
+//       const coordinates = response.data.coord;
+//       return getNeighboringCities(coordinates.lat, coordinates.lon);
+//     })
+//     .catch((error) => console.log(error));
+//   return response;
+// };
+// export const getNeighboringCities = async (lat, lon) => {
+//   const response = axios
+//     .get(
+//       BASE_URL +
+//         "/data/2.5/find?lat=" +
+//         lat +
+//         "&lon=" +
+//         lon +
+//         "&units=imperial&cnt=3&appid=" +
+//         API_KEY
+//     )
+//     .then((response) => {
+//       console.log(response);
+//       return response.data.list;
+//     })
+//     .catch((error) => console.log(error));
+//   return response;
+// };
