@@ -34,9 +34,8 @@ const WeatherCard = (props) => {
   const [temperature, setTemperature] = useState();
   const [description, setDescription] = useState();
 
-  const initializeCard = async () => {
+  const initializeCard = async (city) => {
     getDataByCity(city.replace(" ", "+")).then((response) => {
-      console.log(response);
       setCity(response.name);
       setWeatherIconCode(response.weatherIconCode);
       setTemperature(response.temperature);
@@ -45,7 +44,7 @@ const WeatherCard = (props) => {
     });
   };
   useConstructor(() => {
-    initializeCard();
+    initializeCard(props.city);
   });
   return (
     <Box

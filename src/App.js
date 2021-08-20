@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -6,13 +6,17 @@ import {
   makeStyles,
   TextField,
 } from "@material-ui/core";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import Select from "@material-ui/core/Select";
 import WeatherCard from "./components/WeatherCard";
 import DeleteIcon from "@material-ui/icons/Delete";
-import { STATE_CODES } from "./StateCodes";
+import Cookies from "js-cookie";
+
+// These imports were for implementing a state code selector
+//  State codes are redundant so this could be implemented for a country code selector.
+// import { STATE_CODES } from "./StateCodes";
+// import FormControl from "@material-ui/core/FormControl";
+// import InputLabel from "@material-ui/core/InputLabel";
+// import MenuItem from "@material-ui/core/MenuItem";
+// import Select from "@material-ui/core/Select";
 
 const useStyles = makeStyles({
   container: {
@@ -37,26 +41,49 @@ const useStyles = makeStyles({
 
 const App = () => {
   const classes = useStyles();
-  const [textField, setTextField] = useState("");
-  const [stateCode, setStateCode] = useState("");
-  const handleStateChange = (e) => {
-    setStateCode(e.target.value);
+
+  const useConstructor = (callBack = () => {}) => {
+    const hasBeenCalled = useRef(false);
+    if (hasBeenCalled.current) return;
+    callBack();
+    hasBeenCalled.current = true;
   };
 
-  const [weatherCards, setWeatherCards] = useState([
-    <WeatherCard city="Long Beach" key="Long Beach" />,
-    <WeatherCard city="Morgan Hill" key="Morgan Hill" />,
-    <WeatherCard city="Milpitas" key="Milpitas" />,
-    <WeatherCard city="San Jose" key="San Jose" />,
-  ]);
+  const [textField, setTextField] = useState("");
+  // const [stateCode, setStateCode] = useState("");
+  // const handleStateChange = (e) => {
+  //   setStateCode(e.target.value);
+  // };
+
+  const [weatherCards, setWeatherCards] = useState([]);
   const handleAddCard = () => {
     setWeatherCards([...weatherCards, <WeatherCard city={textField} />]);
+    if (Cookies.get("cities")) {
+      Cookies.set("cities", Cookies.get("cities") + "," + textField, {
+        expires: 31,
+        sameSite: "strict",
+      });
+    } else {
+      Cookies.set("cities", textField, { expires: 31, sameSite: "strict" });
+    }
     setTextField("");
   };
   const deleteCard = (index) => {
     weatherCards.splice(index, 1);
-    setWeatherCards([...weatherCards]);
   };
+
+  const addCookiesToWeatherCards = () => {
+    const cookies = Cookies.get("cities");
+    if (cookies) {
+      const weatherCards = cookies.split(",").map((cookie) => {
+        return <WeatherCard city={cookie} key={cookie} />;
+      });
+      setWeatherCards(weatherCards);
+    }
+  };
+  useConstructor(() => {
+    addCookiesToWeatherCards();
+  });
   return (
     <Box className={classes.container}>
       <Box display="flex" alignItems="center">
@@ -68,7 +95,7 @@ const App = () => {
           value={textField}
           onChange={(e) => setTextField(e.target.value)}
         />
-        <FormControl variant="outlined" className={classes.formControl}>
+        {/* <FormControl variant="outlined" className={classes.formControl}>
           <InputLabel
             id="demo-simple-select-label"
             className={classes.textField}
@@ -89,14 +116,13 @@ const App = () => {
               );
             })}
           </Select>
-        </FormControl>
+        </FormControl> */}
       </Box>
       <Button
         variant="contained"
         color="primary"
         onClick={() => {
           handleAddCard();
-          console.log(stateCode);
         }}
       >
         Add City
