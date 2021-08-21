@@ -61,7 +61,9 @@ const App = () => {
   };
 
   const handleAddCard = async () => {
-    const cookies = Cookies.get("cities");
+    const check = Cookies.get("cities");
+    const cookies = check == null ? "" : check;
+    console.log(check, cookies);
     const input = textField;
     if (cookies.toLowerCase().includes(input.toLowerCase())) {
       setTextField("");
@@ -98,7 +100,10 @@ const App = () => {
     setTextField("");
   };
   const setCitiesCookie = (text) => {
-    Cookies.set("cities", text, { expires: 31, sameSite: "strict" });
+    Cookies.set("cities", text, {
+      expires: 31,
+      secure: "true",
+    });
   };
   const deleteCard = async (index) => {
     const removedCard = weatherCards.splice(index, 1)[0];
