@@ -1,25 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
-import Typography from "@material-ui/core/Typography";
-import { Box, IconButton } from "@material-ui/core";
-import { getDataByCity } from "../api/OpenWeatherUtils";
+import React, { useRef, useState } from "react";
+import {
+  CardContent,
+  Card,
+  IconButton,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
+import {
+  getDataByCity,
+  getWeatherIconURLByCode,
+} from "../api/OpenWeatherUtils";
 import RefreshIcon from "@material-ui/icons/Refresh";
+import { CenteredFlexBox, WeatherIcon } from "./CustomComponents";
 
 const useStyles = makeStyles({
   root: {
     margin: "16px",
     backgroundColor: "#f8f8ff",
   },
-  weatherIcon: {
-    height: "100px",
-    width: "100px;",
-    backgroundColor: "white",
-    borderRadius: "50%",
-  },
 });
+
 const useConstructor = (callBack = () => {}) => {
   const hasBeenCalled = useRef(false);
   if (hasBeenCalled.current) return;
@@ -30,61 +30,42 @@ const useConstructor = (callBack = () => {}) => {
 const WeatherCard = (props) => {
   const classes = useStyles();
   const [city, setCity] = useState(props.city);
-  const [weatherIconCode, setWeatherIconCode] = useState("10d");
-  const [temperature, setTemperature] = useState();
-  const [description, setDescription] = useState();
-  const initializeCard = async (city) => {
+  const [weatherIconURL, setWeatherIconURL] = useState(props.weatherIconURL);
+  const [temperature, setTemperature] = useState(props.temperature);
+  const [description, setDescription] = useState(props.description);
+
+  const refreshCard = async (city) => {
     await getDataByCity(city.replace(" ", "+")).then((response) => {
       setCity(response.name);
-      setWeatherIconCode(response.weatherIconCode);
+      setWeatherIconURL(getWeatherIconURLByCode(response.weatherIconCode));
       setTemperature(response.temperature);
       setDescription(response.description);
     });
   };
   useConstructor(() => {
-    initializeCard(props.city);
+    refreshCard(props.city);
   });
   return (
-    <Box
-      component="div"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-    >
-      <Card className={classes.root}>
+    <Card className={classes.root}>
+      <CenteredFlexBox style={{ flexDirection: "column" }}>
         <CardContent>
-          <Box
-            component="div"
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            align="center"
-            height={350}
-            width={200}
+          <CenteredFlexBox
+            style={{ flexDirection: "column", height: 350, width: 200 }}
           >
-            <Box
-              component="div"
-              height={1 / 3}
-              width={1}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              overflow="hidden"
+            <CenteredFlexBox
+              style={{
+                textAlign: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+                height: "33%",
+                width: "100%",
+              }}
             >
               <Typography variant="h3" component="h2">
                 {city}
               </Typography>
-            </Box>
-            <CardMedia
-              className={classes.weatherIcon}
-              component="img"
-              image={
-                "http://openweathermap.org/img/wn/" +
-                weatherIconCode +
-                "@2x.png"
-              }
-              title={description}
-            />
+            </CenteredFlexBox>
+            <WeatherIcon iconURL={weatherIconURL} title={description} />
             <Typography variant="h5" component="h2">
               {temperature}
             </Typography>
@@ -92,13 +73,18 @@ const WeatherCard = (props) => {
             <Typography variant="h5" component="h2">
               {description}
             </Typography>
-            <IconButton aria-label="refresh" onClick={initializeCard}>
+            <IconButton
+              aria-label="refresh"
+              onClick={() => {
+                refreshCard(props.city);
+              }}
+            >
               <RefreshIcon />
             </IconButton>
-          </Box>
+          </CenteredFlexBox>
         </CardContent>
-      </Card>
-    </Box>
+      </CenteredFlexBox>
+    </Card>
   );
 };
 

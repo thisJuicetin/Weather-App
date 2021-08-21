@@ -5,11 +5,14 @@ import {
   IconButton,
   makeStyles,
   TextField,
+  Typography,
 } from "@material-ui/core";
 import WeatherCard from "./components/WeatherCard";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Cookies from "js-cookie";
 import Fade from "@material-ui/core/Fade";
+import { CenteredFlexBox } from "./components/CustomComponents";
+import { getDataByCity, getWeatherIconURLByCode } from "./api/OpenWeatherUtils";
 
 const useStyles = makeStyles({
   container: {
@@ -43,14 +46,54 @@ const App = () => {
   };
   const [textField, setTextField] = useState("");
   const [weatherCards, setWeatherCards] = useState([]);
-  const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+  const textFieldError = useRef(false);
+  const textFieldErrorMessage = useRef("");
+  // const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  const handleAddCard = () => {
-    setWeatherCards([...weatherCards, <WeatherCard city={textField} />]);
+  const displayErrorOnTextField = (error) => {
+    textFieldError.current = !textFieldError.current;
+    textFieldErrorMessage.current = error;
+  };
+
+  const resetTextField = () => {
+    textFieldError.current = false;
+    textFieldErrorMessage.current = "";
+  };
+
+  const handleAddCard = async () => {
+    const cookies = Cookies.get("cities");
+    const input = textField;
+    if (cookies.toLowerCase().includes(input.toLowerCase())) {
+      setTextField("");
+      displayErrorOnTextField("City card already exists.");
+      return;
+    }
+    const city = await getDataByCity(input.replace(" ", "+"))
+      .then((response) => {
+        setWeatherCards([
+          ...weatherCards,
+          <WeatherCard
+            city={response.name}
+            weatherIconURL={getWeatherIconURLByCode(response.weatherIconCode)}
+            temperature={response.temperature}
+            description={response.description}
+            key={textField}
+          />,
+        ]);
+        return response.name;
+      })
+      .catch((error) => {
+        return null;
+      });
+    if (city === null) {
+      displayErrorOnTextField("City does not exist.");
+      setTextField("");
+      return;
+    }
     if (Cookies.get("cities")) {
-      setCitiesCookie(Cookies.get("cities") + "," + textField);
+      setCitiesCookie(Cookies.get("cities") + "," + city);
     } else {
-      setCitiesCookie(textField);
+      setCitiesCookie(city);
     }
     setTextField("");
   };
@@ -76,44 +119,57 @@ const App = () => {
       });
       setWeatherCards(weatherCards);
     }
-    console.log(Cookies.get().cities);
   };
+
   useConstructor(() => {
     addCookiesToWeatherCards();
   });
+
   return (
     <Box className={classes.container}>
-      <Box display="flex" alignItems="center">
+      <CenteredFlexBox style={{ flexDirection: "column", textAlign: "center" }}>
+        <Typography variant="h2" gutterBottom>
+          OpenWeather Application
+        </Typography>
         <TextField
           id="outlined-basic"
           className={classes.textField}
           label="City Name"
           variant="outlined"
+          error={textFieldError.current}
+          helperText={textFieldErrorMessage.current}
           value={textField}
           onChange={(e) => setTextField(e.target.value)}
+          onKeyPress={(e) => {
+            if (textFieldError.current) resetTextField();
+            if (e.key === "Enter") {
+              handleAddCard();
+            }
+          }}
         />
-      </Box>
+      </CenteredFlexBox>
       <Button
         variant="contained"
         color="primary"
         onClick={() => {
           handleAddCard();
         }}
+        style={{ marginBottom: "8px" }}
       >
         Add City
       </Button>
-      <Box
-        component="div"
-        display="flex"
-        flexWrap="wrap"
-        justifyContent="center"
-        alignItems="center"
+      <CenteredFlexBox
+        style={{
+          alignItems: "center",
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
       >
         {weatherCards.map((card, index) => {
           return (
-            <Fade in={true} timeout={900} unmountOnExit key={card}>
+            <Fade in={true} timeout={900} key={card.props.city}>
               <Box>
-                <Box display="flex" flexDirection="column" alignItems="center">
+                <CenteredFlexBox style={{ flexDirection: "column" }}>
                   <IconButton
                     aria-label="delete"
                     onClick={() => {
@@ -122,13 +178,13 @@ const App = () => {
                   >
                     <DeleteIcon />
                   </IconButton>
-                </Box>
-                <WeatherCard city={card.props.city} key={card.props.city} />
+                </CenteredFlexBox>
+                <WeatherCard city={card.props.city} />
               </Box>
             </Fade>
           );
         })}
-      </Box>
+      </CenteredFlexBox>
     </Box>
   );
 };
