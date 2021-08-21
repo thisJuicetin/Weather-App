@@ -1,0 +1,5 @@
+[[redirects]]
+    from = "https://minimal-weather-app.netlify.app/api.openweathermap.org/*"
+    to = "https://api.openweathermap.org/:splat"
+    status = 200
+    force = true
