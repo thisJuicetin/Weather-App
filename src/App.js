@@ -128,7 +128,7 @@ const App = () => {
   return (
     <Box className={classes.container}>
       <CenteredFlexBox style={{ flexDirection: "column", textAlign: "center" }}>
-        <Typography variant="h2" gutterBottom>
+        <Typography variant="h2" style={{ fontWeight: 400 }} gutterBottom>
           OpenWeather Application
         </Typography>
         <TextField
