@@ -9,14 +9,7 @@ import {
 import WeatherCard from "./components/WeatherCard";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Cookies from "js-cookie";
-
-// These imports were for implementing a state code selector
-//  State codes are redundant so this could be implemented for a country code selector.
-// import { STATE_CODES } from "./StateCodes";
-// import FormControl from "@material-ui/core/FormControl";
-// import InputLabel from "@material-ui/core/InputLabel";
-// import MenuItem from "@material-ui/core/MenuItem";
-// import Select from "@material-ui/core/Select";
+import Fade from "@material-ui/core/Fade";
 
 const useStyles = makeStyles({
   container: {
@@ -48,28 +41,31 @@ const App = () => {
     callBack();
     hasBeenCalled.current = true;
   };
-
   const [textField, setTextField] = useState("");
-  // const [stateCode, setStateCode] = useState("");
-  // const handleStateChange = (e) => {
-  //   setStateCode(e.target.value);
-  // };
-
   const [weatherCards, setWeatherCards] = useState([]);
+  const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
   const handleAddCard = () => {
     setWeatherCards([...weatherCards, <WeatherCard city={textField} />]);
     if (Cookies.get("cities")) {
-      Cookies.set("cities", Cookies.get("cities") + "," + textField, {
-        expires: 31,
-        sameSite: "strict",
-      });
+      setCitiesCookie(Cookies.get("cities") + "," + textField);
     } else {
-      Cookies.set("cities", textField, { expires: 31, sameSite: "strict" });
+      setCitiesCookie(textField);
     }
     setTextField("");
   };
-  const deleteCard = (index) => {
-    weatherCards.splice(index, 1);
+  const setCitiesCookie = (text) => {
+    Cookies.set("cities", text, { expires: 31, sameSite: "strict" });
+  };
+  const deleteCard = async (index) => {
+    const removedCard = weatherCards.splice(index, 1)[0];
+    const cookies = Cookies.get("cities");
+    const newCookies = cookies.split(",").filter((value) => {
+      return value !== removedCard.key;
+    });
+    setCitiesCookie(newCookies);
+    // await delay(300);
+    setWeatherCards([...weatherCards]);
   };
 
   const addCookiesToWeatherCards = () => {
@@ -80,6 +76,7 @@ const App = () => {
       });
       setWeatherCards(weatherCards);
     }
+    console.log(Cookies.get().cities);
   };
   useConstructor(() => {
     addCookiesToWeatherCards();
@@ -95,28 +92,6 @@ const App = () => {
           value={textField}
           onChange={(e) => setTextField(e.target.value)}
         />
-        {/* <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel
-            id="demo-simple-select-label"
-            className={classes.textField}
-          >
-            State
-          </InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={stateCode}
-            onChange={handleStateChange}
-          >
-            {STATE_CODES.map((state, index) => {
-              return (
-                <MenuItem value={state} key={state}>
-                  {state}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl> */}
       </Box>
       <Button
         variant="contained"
@@ -136,17 +111,21 @@ const App = () => {
       >
         {weatherCards.map((card, index) => {
           return (
-            <Box key={index}>
-              <Box display="flex" flexDirection="column" alignItems="center">
-                <IconButton
-                  aria-label="delete"
-                  onClick={() => deleteCard(index)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+            <Fade in={true} timeout={900} unmountOnExit key={card}>
+              <Box>
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <IconButton
+                    aria-label="delete"
+                    onClick={() => {
+                      deleteCard(index);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+                <WeatherCard city={card.props.city} key={card.props.city} />
               </Box>
-              <WeatherCard city={card.props.city} key={card.props.city} />
-            </Box>
+            </Fade>
           );
         })}
       </Box>

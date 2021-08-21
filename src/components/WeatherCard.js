@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -33,14 +33,12 @@ const WeatherCard = (props) => {
   const [weatherIconCode, setWeatherIconCode] = useState("10d");
   const [temperature, setTemperature] = useState();
   const [description, setDescription] = useState();
-
   const initializeCard = async (city) => {
-    getDataByCity(city.replace(" ", "+")).then((response) => {
+    await getDataByCity(city.replace(" ", "+")).then((response) => {
       setCity(response.name);
       setWeatherIconCode(response.weatherIconCode);
       setTemperature(response.temperature);
       setDescription(response.description);
-      return;
     });
   };
   useConstructor(() => {
@@ -80,7 +78,6 @@ const WeatherCard = (props) => {
             <CardMedia
               className={classes.weatherIcon}
               component="img"
-              alt="Weather Icon"
               image={
                 "http://openweathermap.org/img/wn/" +
                 weatherIconCode +
