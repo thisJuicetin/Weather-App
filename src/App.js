@@ -63,7 +63,6 @@ const App = () => {
   const handleAddCard = async () => {
     const check = Cookies.get("cities");
     const cookies = check == null ? "" : check;
-    console.log(check, cookies);
     const input = textField;
     if (cookies.toLowerCase().includes(input.toLowerCase())) {
       setTextField("");
@@ -74,13 +73,7 @@ const App = () => {
       .then((response) => {
         setWeatherCards([
           ...weatherCards,
-          <WeatherCard
-            city={response.name}
-            weatherIconURL={getWeatherIconURLByCode(response.weatherIconCode)}
-            temperature={response.temperature}
-            description={response.description}
-            key={textField}
-          />,
+          <WeatherCard city={response.name} key={response.name} />,
         ]);
         return response.name;
       })
