@@ -12,7 +12,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import Cookies from "js-cookie";
 import Fade from "@material-ui/core/Fade";
 import { CenteredFlexBox } from "./components/CustomComponents";
-import { getDataByCity, getWeatherIconURLByCode } from "./api/OpenWeatherUtils";
+import { getDataByCity } from "./api/OpenWeatherUtils";
 
 const useStyles = makeStyles({
   container: {
