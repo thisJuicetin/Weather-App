@@ -17,10 +17,10 @@ export const getDataByCity = async (city) => {
         name: response.data.name,
         temperature: response.data.main.temp,
         description: response.data.weather[0].main,
-        weatherIconCode: response.data.weather[0].icon,
+        weatherIconURL: getWeatherIconURLByCode(response.data.weather[0].icon),
       };
     })
-    .catch((error) => {
+    .catch(() => {
       return null;
     });
   return response;

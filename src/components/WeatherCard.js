@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   CardContent,
   Card,
@@ -6,12 +6,16 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import {
-  getDataByCity,
-  getWeatherIconURLByCode,
-} from "../api/OpenWeatherUtils";
+import { getDataByCity } from "../api/OpenWeatherUtils";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { CenteredFlexBox, WeatherIcon } from "./CustomComponents";
+
+// const example = {
+//   name: "San Jose",
+//   temperature: 77.7,
+//   description: "Lucky",
+//   weatherIconURL: "http://openweathermap.org/img/wn/02d@2x.png",
+// };
 
 const useStyles = makeStyles({
   root: {
@@ -20,31 +24,16 @@ const useStyles = makeStyles({
   },
 });
 
-const useConstructor = (callBack = () => {}) => {
-  const hasBeenCalled = useRef(false);
-  if (hasBeenCalled.current) return;
-  callBack();
-  hasBeenCalled.current = true;
-};
-
 const WeatherCard = (props) => {
   const classes = useStyles();
-  const [city, setCity] = useState(props.city);
-  const [weatherIconURL, setWeatherIconURL] = useState(props.weatherIconURL);
-  const [temperature, setTemperature] = useState(props.temperature);
-  const [description, setDescription] = useState(props.description);
-
-  const refreshCard = async (city) => {
-    await getDataByCity(city.replace(" ", "+")).then((response) => {
-      setCity(response.name);
-      setWeatherIconURL(getWeatherIconURLByCode(response.weatherIconCode));
-      setTemperature(response.temperature);
-      setDescription(response.description);
-    });
+  const [items, setItems] = useState([]);
+  const updateItems = async (city) => {
+    const data = await getDataByCity(city);
+    setItems(data);
   };
-  useConstructor(() => {
-    refreshCard(props.city);
-  });
+  useEffect(() => {
+    updateItems(props.city);
+  }, [props]);
   return (
     <Card className={classes.root}>
       <CenteredFlexBox style={{ flexDirection: "column" }}>
@@ -62,21 +51,24 @@ const WeatherCard = (props) => {
               }}
             >
               <Typography variant="h3" component="h2">
-                {city}
+                {items.name}
               </Typography>
             </CenteredFlexBox>
-            <WeatherIcon iconURL={weatherIconURL} title={description} />
+            <WeatherIcon
+              iconURL={items.weatherIconURL}
+              title={items.description}
+            />
             <Typography variant="h5" component="h2">
-              {temperature}
+              {items.temperature}
             </Typography>
 
             <Typography variant="h5" component="h2">
-              {description}
+              {items.description}
             </Typography>
             <IconButton
               aria-label="refresh"
               onClick={() => {
-                refreshCard(props.city);
+                updateItems(props.city);
               }}
             >
               <RefreshIcon />
