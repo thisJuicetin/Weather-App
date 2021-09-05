@@ -19,11 +19,9 @@ const useStyles = makeStyles({
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
-    paddingTop: "64px",
     width: "100%",
     height: "100%",
     minHeight: "100vh",
-    backgroundColor: "aliceblue",
   },
   textField: { backgroundColor: "#f8f8ff", marginBottom: 16 },
   addCityButton: { padding: "16px" },
@@ -76,7 +74,11 @@ const App = () => {
   return (
     <Box className={classes.container}>
       <CenteredFlexBox style={{ flexDirection: "column", textAlign: "center" }}>
-        <Typography variant="h2" style={{ fontWeight: 400 }} gutterBottom>
+        <Typography
+          variant="h2"
+          style={{ paddingTop: "64px", fontWeight: 400 }}
+          gutterBottom
+        >
           OpenWeather Application
         </Typography>
         <TextField
