@@ -23,7 +23,12 @@ const useStyles = makeStyles({
     height: "100%",
     minHeight: "100vh",
   },
-  textField: { backgroundColor: "#f8f8ff", marginBottom: 16 },
+  textField: {
+    marginBottom: 16,
+    "& .MuiInputBase-input.MuiOutlinedInput-input": {
+      backgroundColor: "#f8f8ff",
+    },
+  },
   addCityButton: { padding: "16px" },
   formControl: {
     width: 100,
@@ -79,7 +84,7 @@ const App = () => {
           style={{ paddingTop: "64px", fontWeight: 400 }}
           gutterBottom
         >
-          OpenWeather Application
+          OpenWeather
         </Typography>
         <TextField
           id="outlined-basic"

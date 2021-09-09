@@ -20,7 +20,8 @@ export const getDataByCity = async (city) => {
         weatherIconURL: getWeatherIconURLByCode(response.data.weather[0].icon),
       };
     })
-    .catch(() => {
+    .catch((error) => {
+      console.log(error);
       return null;
     });
   return response;
