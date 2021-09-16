@@ -39,7 +39,8 @@ const WeatherCard = (props) => {
       <CenteredFlexBox style={{ flexDirection: "column" }}>
         <CardContent>
           <CenteredFlexBox
-            style={{ flexDirection: "column", height: 350, width: 200 }}
+            // style={{ flexDirection: "column", height: 350, width: 200 }}
+            style={{ flexDirection: "column", height: 350 }}
           >
             <CenteredFlexBox
               style={{
